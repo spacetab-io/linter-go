@@ -71,13 +71,11 @@ linters:
     - ifshort
     - importas
     - ineffassign
-    - interfacer
+    #    - interfacer
     - lll
     - makezero
-    - maligned
     - nakedret
     - nestif
-    - nilassign
     - nilerr
     - nilnil
     - nlreturn
@@ -89,12 +87,12 @@ linters:
     - promlinter
     - revive # instead of golint
     - rowserrcheck
-    - scopelint
+    #    - scopelint
     - sqlclosecheck
     - staticcheck
     - structcheck
     - stylecheck # instead of golint
-    - tagliatelle
+    #    - tagliatelle
     - tenv
     - testpackage
     - thelper
@@ -142,6 +140,30 @@ linters-settings:
     line-length: 140
     # tab width in spaces. Default to 1.
     tab-width: 4
+  wrapcheck:
+    # An array of strings that specify substrings of signatures to ignore.
+    # If this set, it will override the default set of ignored signatures.
+    # See https://github.com/tomarrell/wrapcheck#configuration for more information.
+    ignoreSigs:
+      - .Errorf(
+      - errors.New(
+      - errors.Unwrap(
+      - .SetFromString(
+      - .Wrap(
+      - .Wrapf(
+      - .WithMessage(
+      - .WithMessagef(
+      - .WithStack(
+      - .WrappedError(
+    ignoreSigRegexps:
+      - \.New.*Error\(
+      - json-iterator\/go
+    ignorePackageGlobs:
+      - encoding/*
+      - jsoniter*
+      - github.com/pkg/*
+    ignoreInterfaceRegexps:
+      - ^(?i)c(?-i)ach(ing|e)
   wsl:
     # If true append is only allowed to be cuddled if appending value is
     # matching variables, fields or types on line above. Default is true.
