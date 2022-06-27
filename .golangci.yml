@@ -43,7 +43,6 @@ linters:
     - errcheck
     - errname
     - errorlint
-    - exhaustive
     - exportloopref
     - forbidigo
     - forcetypeassert
@@ -87,12 +86,10 @@ linters:
     - promlinter
     - revive # instead of golint
     - rowserrcheck
-    #    - scopelint
     - sqlclosecheck
     - staticcheck
     - structcheck
     - stylecheck # instead of golint
-    #    - tagliatelle
     - tenv
     - testpackage
     - thelper
@@ -155,6 +152,9 @@ linters-settings:
       - .WithMessagef(
       - .WithStack(
       - .WrappedError(
+      - squirrel.
+      - .Send(
+      - .Close(
     ignoreSigRegexps:
       - \.New.*Error\(
       - json-iterator\/go
