@@ -153,10 +153,10 @@ linters-settings:
   goconst:
     # Minimal length of string constant.
     # Default: 3
-    min-len: 2
+    min-len: 3
     # Minimum occurrences of constant string count to trigger issue.
     # Default: 3
-    min-occurrences: 2
+    min-occurrences: 3
     # Ignore test files.
     # Default: false
     ignore-tests: true
@@ -168,10 +168,10 @@ linters-settings:
     numbers: true
     # Minimum value, only works with goconst.numbers
     # Default: 3
-    min: 2
+    min: 3
     # Maximum value, only works with goconst.numbers
     # Default: 3
-    max: 2
+    max: 3
     # Ignore when constant is not used as function argument.
     # Default: true
     ignore-calls: false
