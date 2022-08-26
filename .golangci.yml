@@ -61,28 +61,33 @@ output:
 linters:
   disable-all: true
   enable:
+    #- gochecknoglobals
+    #- grouper
+    #- interfacebloat # can't read config for now
+    #- structcheck
+    #- varcheck
     - asciicheck
     - bidichk
     - bodyclose
     - containedctx
     - contextcheck
     - cyclop
-    - deadcode
     - decorder
     - depguard
     - dogsled
     - dupl
     - durationcheck
     - errcheck
+    - errchkjson
     - errname
     - errorlint
+    - exhaustive
     - exportloopref
     - forbidigo
     - forcetypeassert
     - funlen
-    - gci
     - gas
-    #- gochecknoglobals
+    - gci
     - gochecknoinits
     - gocognit
     - goconst
@@ -96,15 +101,16 @@ linters:
     - goimports
     - gomnd
     - gomoddirectives
+    - gomodguard
     - goprintffuncname
     - gosec
     - gosimple
     - govet
-    - ifshort
     - importas
     - ineffassign
-    #    - interfacer
+    - ireturn
     - lll
+    - logrlint
     - maintidx
     - makezero
     - nakedret
@@ -114,15 +120,17 @@ linters:
     - nlreturn
     - noctx
     - nolintlint
+    - nonamedreturns
+    - nosprintfhostport
     - paralleltest
     - prealloc
     - predeclared
     - promlinter
+    - reassign
     - revive # instead of golint
     - rowserrcheck
     - sqlclosecheck
     - staticcheck
-    - structcheck
     - stylecheck # instead of golint
     - tagliatelle
     - tenv
@@ -133,21 +141,106 @@ linters:
     - unconvert
     - unparam
     - unused
-    - varcheck
+    - usestdlibvars
     - wastedassign
     - whitespace
     - wrapcheck
     - wsl
 
 linters-settings:
+  cyclop:
+    # the maximal code complexity to report
+    max-complexity: 25
+    # the maximal average package complexity. If it's higher than 0.0 (float) the check is enabled (default 0.0)
+    package-average: 10.0
+    # should ignore tests (default false)
+    skip-tests: false
+  decorder:
+    # Required order of `type`, `const`, `var` and `func` declarations inside a file.
+    # Default: types before constants before variables before functions.
+    dec-order:
+      - type
+      - const
+      - var
+      - func
+    # If true, order of declarations is not checked at all.
+    # Default: true (disabled)
+    disable-dec-order-check: false
+    # If true, `init` func can be anywhere in file (does not have to be declared before all other functions).
+    # Default: true (disabled)
+    disable-init-func-first-check: true
+    # If true, multiple global `type`, `const` and `var` declarations are allowed.
+    # Default: true (disabled)
+    disable-dec-num-check: true
+  dupl:
+    # tokens count to trigger issue, 150 by default
+    threshold: 110
   errcheck:
-    # report about not checking of errors in type assetions: `a := b.(MyStruct)`;
-    # default is false: such cases aren't reported by default.
+    # Report about not checking of errors in type assertions: `a := b.(MyStruct)`.
+    # Such cases aren't reported by default.
+    # Default: false
     check-type-assertions: true
-    # report about assignment of errors to blank identifier: `num, _ := strconv.Atoi(numStr)`;
-    # default is false: such cases aren't reported by default.
-    check-blank: false
-  gocyclo:
+    # report about assignment of errors to blank identifier: `num, _ := strconv.Atoi(numStr)`.
+    # Such cases aren't reported by default.
+    # Default: false
+    check-blank: true
+    # To disable the errcheck built-in exclude list.
+    # See `-excludeonly` option in https://github.com/kisielk/errcheck#excluding-functions for details.
+    # Default: false
+    disable-default-exclusions: false
+    # List of functions to exclude from checking, where each entry is a single function to exclude.
+    # See https://github.com/kisielk/errcheck#excluding-functions for details.
+    exclude-functions:
+      - io/ioutil.ReadFile
+      - io.Copy(*bytes.Buffer)
+      - io.Copy(os.Stdout)
+      - (*net/http.Client).Do
+      - encoding/json.Marshal
+      - encoding/json.MarshalIndent
+  errchkjson:
+    # With check-error-free-encoding set to true, errchkjson does warn about errors
+    # from json encoding functions that are safe to be ignored,
+    # because they are not possible to happen.
+    #
+    # if check-error-free-encoding is set to true and errcheck linter is enabled,
+    # it is recommended to add the following exceptions to prevent from false positives:
+    #
+    #     linters-settings:
+    #       errcheck:
+    #         exclude-functions:
+    #           - encoding/json.Marshal
+    #           - encoding/json.MarshalIndent
+    #
+    # Default: false
+    check-error-free-encoding: true
+    # Issue on struct encoding that doesn't have exported fields.
+    # Default: false
+    report-no-exported: true
+  exhaustive:
+    # Check switch statements in generated files also.
+    # Default: false
+    check-generated: false
+    # Presence of "default" case in switch statements satisfies exhaustiveness,
+    # even if all enum members are not listed.
+    # Default: false
+    default-signifies-exhaustive: false
+    # Enum members matching the supplied regex do not have to be listed in
+    # switch statements to satisfy exhaustiveness.
+    # Default: ""
+    ignore-enum-members: ""
+    # Consider enums only in package scopes, not in inner scopes.
+    # Default: false
+    package-scope-only: true
+  funlen:
+    # Checks the number of lines in a function.
+    # If lower than 0, disable the check.
+    # Default: 60
+    lines: 100
+    # Checks the number of statements in a function.
+    # If lower than 0, disable the check.
+    # Default: 40
+    statements: 50
+  gocognit:
     # minimal code complexity to report, 30 by default (but we recommend 10-20)
     min-complexity: 25
   goconst:
@@ -175,16 +268,78 @@ linters-settings:
     # Ignore when constant is not used as function argument.
     # Default: true
     ignore-calls: true
-  cyclop:
-    # the maximal code complexity to report
-    max-complexity: 25
-    # the maximal average package complexity. If it's higher than 0.0 (float) the check is enabled (default 0.0)
-    package-average: 10.0
-    # should ignore tests (default false)
-    skip-tests: false
-  maligned:
-    # print struct with more effective memory layout or not, false by default
-    suggest-new: true
+  gocyclo:
+    # minimal code complexity to report, 30 by default (but we recommend 10-20)
+    min-complexity: 25
+  gomodguard:
+    allowed:
+      # List of allowed modules.
+      # Default: []
+      modules: []
+      # List of allowed module domains.
+      # Default: []
+      domains: []
+    blocked:
+      # List of blocked modules.
+      # Default: []
+      modules:
+        # Blocked module.
+        - github.com/uudashr/go-module:
+            # Recommended modules that should be used instead. (Optional)
+            recommendations:
+              - golang.org/x/mod
+            # Reason why the recommended module should be used. (Optional)
+            reason: "`mod` is the official go.mod parser library."
+        - github.com/gofrs/uuid:
+            recommendations:
+              - github.com/google/uuid
+            reason: "use google uuid library for good"
+      # List of blocked module version constraints.
+      # Default: []
+      versions:
+        # Blocked module with version constraint.
+        - github.com/mitchellh/go-homedir:
+            # Version constraint, see https://github.com/Masterminds/semver#basic-comparisons.
+            version: "< 1.1.0"
+            # Reason why the version constraint exists. (Optional)
+            reason: "testing if blocked version constraint works."
+      # Set to true to raise lint issues for packages that are loaded from a local path via replace directive.
+      # Default: false
+      local_replace_directives: true
+  interfacebloat:
+    # The maximum number of methods allowed for an interface.
+    # Default: 10
+    max: 20
+  ireturn:
+    # ireturn allows using `allow` and `reject` settings at the same time.
+    # Both settings are lists of the keywords and regular expressions matched to interface or package names.
+    # keywords:
+    # - `empty` for `interface{}`
+    # - `error` for errors
+    # - `stdlib` for standard library
+    # - `anon` for anonymous interfaces
+
+    # By default, it allows using errors, empty interfaces, anonymous interfaces,
+    # and interfaces provided by the standard library.
+    allow:
+      - anon
+      - error
+      - empty
+      - stdlib
+      - pgx
+      - configuration-structs-go
+      - commands
+      - IDInterface
+      # You can specify idiomatic endings for interface
+      - (or|er)$
+    # reject-list of interfaces
+    reject: []
+  lll:
+    # max line length, lines longer will be reported. Default is 120.
+    # '\t' is counted as 1 character by default, and can be changed with the tab-width option
+    line-length: 140
+    # tab width in spaces. Default to 1.
+    tab-width: 4
   maintidx:
     # Show functions with maintainability index lower than N.
     # A high index indicates better maintainability (it's kind of the opposite of complexity).
@@ -210,35 +365,87 @@ linters-settings:
     # Enable to require nolint directives to mention the specific linter being suppressed.
     # Default: false
     require-specific: true
-  dupl:
-    # tokens count to trigger issue, 150 by default
-    threshold: 110
-  decorder:
-    # Required order of `type`, `const`, `var` and `func` declarations inside a file.
-    # Default: types before constants before variables before functions.
-    dec-order:
-      - type
-      - const
-      - var
-      - func
-    # If true, order of declarations is not checked at all.
-    # Default: true (disabled)
-    disable-dec-order-check: false
-    # If true, `init` func can be anywhere in file (does not have to be declared before all other functions).
-    # Default: true (disabled)
-    disable-init-func-first-check: true
-    # If true, multiple global `type`, `const` and `var` declarations are allowed.
-    # Default: true (disabled)
-    disable-dec-num-check: true
-  gocognit:
-    # minimal code complexity to report, 30 by default (but we recommend 10-20)
-    min-complexity: 25
-  lll:
-    # max line length, lines longer will be reported. Default is 120.
-    # '\t' is counted as 1 character by default, and can be changed with the tab-width option
-    line-length: 140
-    # tab width in spaces. Default to 1.
-    tab-width: 4
+  nonamedreturns:
+    # Report named error if it is assigned inside defer.
+    # Default: false
+    report-error-in-defer: false
+  reassign:
+    # Patterns for global variable names that are checked for reassignment.
+    # See https://github.com/curioswitch/go-reassign#usage
+    # Default: ["EOF", "Err.*"]
+    patterns:
+      - "EOF"
+      - "Err.*"
+  tagliatelle:
+    # Check the struck tag name case.
+    case:
+      # Use the struct field name to check the name of the struct tag.
+      # Default: false
+      use-field-name: false
+      # `camel` is used for `json` and `yaml` (can be overridden)
+      # Default: {}
+      rules:
+        # Any struct tag type can be used.
+        # Support string case: `camel`, `pascal`, `kebab`, `snake`, `goCamel`, `goPascal`, `goKebab`, `goSnake`, `upper`, `lower`
+        json: camel
+        yaml: camel
+        xml: camel
+        bson: camel
+        avro: snake
+        mapstructure: goCamel
+  usestdlibvars:
+    # Suggest the use of http.MethodXX
+    # Default: true
+    http-method: true
+    # Suggest the use of http.StatusXX
+    # Default: true
+    http-status-code: true
+    # Suggest the use of time.Weekday
+    # Default: true
+    time-weekday: true
+    # Suggest the use of time.Month
+    # Default: false
+    time-month: true
+    # Suggest the use of time.Layout
+    # Default: false
+    time-layout: true
+    # Suggest the use of crypto.Hash
+    # Default: false
+    crypto-hash: true
+    # Suggest the use of pc.DefaultXXPath
+    # Default: false
+    default-rpc-path: true
+  varnamelen:
+    # The longest distance, in source lines, that is being considered a "small scope." (defaults to 5)
+    # Variables used in at most this many lines will be ignored.
+    max-distance: 5
+    # The minimum length of a variable's name that is considered "long." (defaults to 3)
+    # Variable names that are at least this long will be ignored.
+    min-name-length: 3
+    # Check method receiver names. (defaults to false)
+    check-receiver: false
+    # Check named return values. (defaults to false)
+    check-return: false
+    # Ignore "ok" variables that hold the bool return value of a type assertion. (defaults to false)
+    ignore-type-assert-ok: true
+    # Ignore "ok" variables that hold the bool return value of a map index. (defaults to false)
+    ignore-map-index-ok: true
+    # Ignore "ok" variables that hold the bool return value of a channel receive. (defaults to false)
+    ignore-chan-recv-ok: true
+    # Optional list of variable names that should be ignored completely. (defaults to empty list)
+    ignore-names:
+      - err
+    # Optional list of variable declarations that should be ignored completely. (defaults to empty list)
+    # Entries must be in the form of "<variable name> <type>" or "<variable name> *<type>" for
+    # variables, or "const <name>" for constants.
+    ignore-decls:
+      - c echo.Context
+      - t testing.T
+      - f *foo.Bar
+      - e error
+      - err error
+      - i int
+      - const C
   wrapcheck:
     # An array of strings that specify substrings of signatures to ignore.
     # If this set, it will override the default set of ignored signatures.
@@ -290,63 +497,6 @@ linters-settings:
     allow-trailing-comment: true
     # Force newlines in end of case at this limit (0 = never).
     force-case-trailing-whitespace: 0
-  funlen:
-    # Checks the number of lines in a function.
-    # If lower than 0, disable the check.
-    # Default: 60
-    lines: 100
-    # Checks the number of statements in a function.
-    # If lower than 0, disable the check.
-    # Default: 40
-    statements: 50
-  varnamelen:
-    # The longest distance, in source lines, that is being considered a "small scope." (defaults to 5)
-    # Variables used in at most this many lines will be ignored.
-    max-distance: 5
-    # The minimum length of a variable's name that is considered "long." (defaults to 3)
-    # Variable names that are at least this long will be ignored.
-    min-name-length: 3
-    # Check method receiver names. (defaults to false)
-    check-receiver: false
-    # Check named return values. (defaults to false)
-    check-return: false
-    # Ignore "ok" variables that hold the bool return value of a type assertion. (defaults to false)
-    ignore-type-assert-ok: true
-    # Ignore "ok" variables that hold the bool return value of a map index. (defaults to false)
-    ignore-map-index-ok: true
-    # Ignore "ok" variables that hold the bool return value of a channel receive. (defaults to false)
-    ignore-chan-recv-ok: true
-    # Optional list of variable names that should be ignored completely. (defaults to empty list)
-    ignore-names:
-      - err
-    # Optional list of variable declarations that should be ignored completely. (defaults to empty list)
-    # Entries must be in the form of "<variable name> <type>" or "<variable name> *<type>" for
-    # variables, or "const <name>" for constants.
-    ignore-decls:
-      - c echo.Context
-      - t testing.T
-      - f *foo.Bar
-      - e error
-      - err error
-      - i int
-      - const C
-  tagliatelle:
-    # Check the struck tag name case.
-    case:
-      # Use the struct field name to check the name of the struct tag.
-      # Default: false
-      use-field-name: false
-      # `camel` is used for `json` and `yaml` (can be overridden)
-      # Default: {}
-      rules:
-        # Any struct tag type can be used.
-        # Support string case: `camel`, `pascal`, `kebab`, `snake`, `goCamel`, `goPascal`, `goKebab`, `goSnake`, `upper`, `lower`
-        json: camel
-        yaml: camel
-        xml: camel
-        bson: camel
-        avro: snake
-        mapstructure: goCamel
 
 issues:
   exclude:
@@ -357,7 +507,6 @@ issues:
     - path: _test\.go
       linters:
         - gomnd
-        - scopelint
         - funlen
         - dupl
         - cyclop
@@ -367,10 +516,10 @@ issues:
         - gocognit
         - gocyclo
         - typecheck
+        - errcheck
     - path: _mock\.go
       linters:
         - gomnd
-        - scopelint
         - funlen
         - dupl
         - cyclop
@@ -380,6 +529,7 @@ issues:
         - gocognit
         - gocyclo
         - typecheck
+        - errcheck
 
   # Maximum issues count per one linter. Set to 0 to disable. Default is 50.
   max-issues-per-linter: 0
@@ -393,6 +543,6 @@ issues:
 # golangci.com configuration
 # https://github.com/golangci/golangci/wiki/Configuration
 service:
-  golangci-lint-version: 1.46.x # use the fixed version to not introduce new linters unexpectedly
+  golangci-lint-version: 1.49.x # use the fixed version to not introduce new linters unexpectedly
   prepare:
     - echo "here I can run custom commands, but no preparation needed for this repo"
