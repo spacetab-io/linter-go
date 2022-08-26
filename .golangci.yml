@@ -174,7 +174,7 @@ linters-settings:
     max: 3
     # Ignore when constant is not used as function argument.
     # Default: true
-    ignore-calls: false
+    ignore-calls: true
   cyclop:
     # the maximal code complexity to report
     max-complexity: 25
@@ -203,7 +203,7 @@ linters-settings:
     allow-leading-space: true
     # Exclude following linters from requiring an explanation.
     # Default: []
-    allow-no-explanation: [ ]
+    allow-no-explanation: [ gomnd ]
     # Enable to require an explanation of nonzero length after each nolint directive.
     # Default: false
     require-explanation: true
@@ -257,9 +257,18 @@ linters-settings:
       - squirrel.
       - .Send(
       - .Close(
+      - .Err(
+      - .Scan(
     ignoreSigRegexps:
       - \.New.*Error\(
       - json-iterator\/go
+      - \.Create/*
+      - \.Add/*
+      - \.Insert/*
+      - \.Get/*
+      - \.Edit/*
+      - \.Update/*
+      - \.Delete/*
     ignorePackageGlobs:
       - encoding/*
       - jsoniter*
@@ -354,6 +363,23 @@ issues:
         - cyclop
         - lll
         - maintidx
+        - goconst
+        - gocognit
+        - gocyclo
+        - typecheck
+    - path: _mock\.go
+      linters:
+        - gomnd
+        - scopelint
+        - funlen
+        - dupl
+        - cyclop
+        - lll
+        - maintidx
+        - goconst
+        - gocognit
+        - gocyclo
+        - typecheck
 
   # Maximum issues count per one linter. Set to 0 to disable. Default is 50.
   max-issues-per-linter: 0
