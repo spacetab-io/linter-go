@@ -466,16 +466,30 @@ linters-settings:
       - .Close(
       - .Err(
       - .Scan(
+      - .Result(
     ignoreSigRegexps:
       - \.New.*Error\(
       - json-iterator\/go
-      - \.Create/*
-      - \.Add/*
-      - \.Insert/*
-      - \.Get/*
-      - \.Edit/*
-      - \.Update/*
-      - \.Delete/*
+      - \..*Create\(
+      - \..*Add\(
+      - \..*Insert\(
+      - \..*Count\(
+      - \..*Get\(
+      - \..*List\(
+      - \..*Edit\(
+      - \..*Update\(
+      - \..*Delete\(
+      - \..*Wrap\(
+      - \.Create.*\(
+      - \.Add.*\(
+      - \.Insert.*\(
+      - \.Count.*\(
+      - \.Get.*\(
+      - \.List.*\(
+      - \.Edit.*\(
+      - \.Update.*\(
+      - \.Delete.*\(
+      - \.Wrap.*\(
     ignorePackageGlobs:
       - encoding/*
       - jsoniter*
@@ -517,6 +531,7 @@ issues:
         - gocyclo
         - typecheck
         - errcheck
+        - dogsled
     - path: _mock\.go
       linters:
         - gomnd
@@ -530,6 +545,7 @@ issues:
         - gocyclo
         - typecheck
         - errcheck
+        - dogsled
 
   # Maximum issues count per one linter. Set to 0 to disable. Default is 50.
   max-issues-per-linter: 0
@@ -538,7 +554,7 @@ issues:
   max-same-issues: 0
 
   # Fix found issues (if it's supported by the linter)
-  fix: true
+  fix: false
 
 # golangci.com configuration
 # https://github.com/golangci/golangci/wiki/Configuration
