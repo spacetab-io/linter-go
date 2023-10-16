@@ -422,8 +422,8 @@ linters-settings:
         disabled: false
         arguments:
           - maxLitCount: "3"
-            allowStrs: '""'
-            allowInts: "0,1,2"
+            allowStrs: '"","test","text"'
+            allowInts: "0,1,2,3,4,5,123,234,345"
             allowFloats: "0.0,0.,1.0,1.,2.0,2."
       # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#argument-limit
       - name: argument-limit
